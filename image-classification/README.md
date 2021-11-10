@@ -1,6 +1,6 @@
 # Multi-Class image cassification using CNN
 
-*  Buuild dataset from raw data
+*  Build dataset from raw data
 *  Train CNN model
 *  Deploy the trained model
 
