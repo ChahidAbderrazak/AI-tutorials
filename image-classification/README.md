@@ -7,6 +7,5 @@
 # Acknowledgement
 
 This work was inspired by different online ressources. The used parts were adapted with/without modifications. The main ressources are cited as follows:
-code structure an dconfig: https://github.com/CSAILVision/semantic-segmentation-pytorch/blob/master/train.py 
-
-Initial CNN model and training framework: https://www.kaggle.com/yomnamabdulwahab/imagenet-pytorch 
+*  [code structure and config](https://github.com/CSAILVision/semantic-segmentation-pytorch/blob/master/train.py)
+*  [Initial CNN model and training framework](https://www.kaggle.com/yomnamabdulwahab/imagenet-pytorch)
