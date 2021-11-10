@@ -1,3 +1,10 @@
+# Multi-Class image cassification using CNN
+
+*  Buuild dataset from raw data
+*  Train CNN model
+*  Deploy the trained model
+
+# Acknowledgement
 
 This work was inspired by different online ressources. The used parts were adapted with/without modifications. The main ressources are cited as follows:
 code structure an dconfig: https://github.com/CSAILVision/semantic-segmentation-pytorch/blob/master/train.py 
