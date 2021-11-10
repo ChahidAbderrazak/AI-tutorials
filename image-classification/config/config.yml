@@ -1,0 +1,30 @@
+DATASET:
+  raw_dataset: "data/NVS-proj"
+  ext_list: ['.tif', 'tiff', 'jpg'] 
+  workspace: "data/workspace"
+  imgSizes_X: 128
+  imgSizes_Y: 128
+  imgMaxSize: 1000
+  padding_constant: 32
+  segm_downsampling_rate: 4
+  random_flip: True
+
+MODEL:
+  model_name : 'CNN-MClss'
+  model_dst: "model"
+  arch_encoder: "hrnetv2"
+  arch_decoder: "c1"
+  fc_dim: 720
+
+TRAIN:
+  split_size: 0.8
+  nb_folds: 2
+  num_epoch: 1000
+  batch_size: 1
+  num_workers: 0
+  start_epoch: 0
+  optimizer: 'adam' # "SGD"
+  loss_critereon: 'crossEntropy'
+  epoch_iters: 5000
+  lr: 0.001
+  transfer_learning: 'Yes'

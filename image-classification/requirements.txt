@@ -1,0 +1,10 @@
+matplotlib
+numpy
+pandas
+opencv-python
+scikit-image
+torch
+tensorflow
+numpy-stl
+glob2
+sklearn
