@@ -208,14 +208,17 @@ def build_dataset_workspace(raw_data_folder, RAW_DATA_ROOT, ext_list, size, DIR_
             print('data folder =', RAW_DATA_ROOT)
             print( 'The data is split as follows: \n- Train = %d images \n- Test = %d images  \n- Deploy = %d images  '%(len(files_train), len(files_test), len(files_deploy)))
             # save Deploy
+            print('\n  -> converting/resizing/saving jpg format of the deploy set folder. Please wait ..:)')
             convert_tiff_save_jpg(RAW_DATA_ROOT, files_deploy, saveFolder_deploy, size)
             # save Train
+            print('\n  -> converting/resizing/saving jpg format of the train set folder. Please wait ..:)')
             convert_tiff_save_jpg(RAW_DATA_ROOT, files_train, saveFolder_train, size)
             # save Test
+            print('\n  -> converting/resizing/saving jpg format of the test set folder. Please wait ..:)')
             convert_tiff_save_jpg(RAW_DATA_ROOT, files_test, saveFolder_test, size)
 
 
-        print('Done.')
+        print('Data prepration is done successfully !!!.')
     else:
         print('The train and test set are already split.')
         classes = sorted(os.listdir(DIR_TRAIN))

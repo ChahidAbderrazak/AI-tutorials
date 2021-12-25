@@ -1,3 +1,6 @@
 
 *.pkl
 *.pyc
+*/data/workspace/
+*/data/FashionMNIST/
+*.pth

@@ -1,30 +1,23 @@
-DATASET:
-  raw_dataset: "data/NVS-proj"
-  ext_list: ['.tif', 'tiff', 'jpg'] 
-  workspace: "data/workspace"
-  imgSizes_X: 128
-  imgSizes_Y: 128
-  imgMaxSize: 1000
-  padding_constant: 32
-  segm_downsampling_rate: 4
-  random_flip: True
+DATASET: 
+  raw_dataset: "data/NVS-proj"          # raw data  input folder where the images  are stored seperatly in subfolders representing the classes 
+  ext_list: ['.tif', 'tiff', 'jpg']     # supported raw data images format
+  workspace: "data/workspace"           # processed data destination
+  imgSizes_X: 128                       # resizing width
+  imgSizes_Y: 128                       # resizing hight
 
 MODEL:
-  model_name : 'CNN-MClss'
-  model_dst: "model"
-  arch_encoder: "hrnetv2"
-  arch_decoder: "c1"
-  fc_dim: 720
+  model_name : 'CNN-MClss'       # Name of the trained model to be saved in <model_dst> folder
+  model_dst: "model"             # folder where the trained model will be saved
 
 TRAIN:
-  split_size: 0.8
-  nb_folds: 2
-  num_epoch: 1000
-  batch_size: 1
-  num_workers: 0
-  start_epoch: 0
-  optimizer: 'adam' # "SGD"
-  loss_critereon: 'crossEntropy'
-  epoch_iters: 5000
-  lr: 0.001
+  split_size: 0.8                # the percentage of spliting the the trainning set <workspace + train>. Default 0.8 = 80% 
+  nb_folds: 2                    # number of time to split and train the modeol on the trainning set, stored in <workspace + train>,  will be repeated on the training set with suffling. Default 2
+  num_epoch: 20                # number of epochs to train to model for every epoch. Default 500
+  num_workers: 0                 # number of paralle workers. Default 0
+  loss_critereon: 'crossEntropy' # loss criteria
+  lr: 0.001                      # learning rate
+  batch_size: 1                  # batch size
+  optimizer: 'adam' # "SGD"      # optimizer to adjust thr Network weights
+  es_patience_ratio : 10         # ~10 Ratio of epochs to be used as early stopping critereon  (num_epoch/es_patience_ratio)
   transfer_learning: 'Yes'
+

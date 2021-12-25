@@ -149,6 +149,8 @@ def define_config_optimizer_loss(transfer_learning, model_path, clf_model, lr, o
     # define the optimizer 
     if optimizer == 'adam':
       optimizer_ = optim.Adam(model.parameters(), lr=lr)   # "Adam" optimizer to adjust weights
+    elif optimizer == 'SGD':
+      optimizer_ = optim.SGD(model.parameters(), lr=lr)   # "Adam" optimizer to adjust weights
     else:
       print('Error: The used optimizer=%s is not found'%(optimizer) )
       return 0
@@ -178,7 +180,7 @@ def tracking_model_learning_history(model_path):
 
 def train_model(DIR_TRAIN, clf_model, model_path, nb_folds=5, num_epoch=100, lr=0.001, \
                   optimizer = 'adam', loss_criteria='crossEntropy', split_size=0.7, batch_size=50, \
-                    es_patience=50, num_workers=0, transfer_learning='Yes'):
+                    es_patience=50, num_workers=0, transfer_learning='Yes', disp=True):
   # define the devide
   device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
   print('device = ', device)
@@ -189,11 +191,11 @@ def train_model(DIR_TRAIN, clf_model, model_path, nb_folds=5, num_epoch=100, lr=
   save_classes_json(classes)
   print("--> Classes size = %d \n --> Classes names = %s"%(len(classes), classes ))
   # Start multiple folds training
-  for fold in range(1,nb_folds):
+  for fold in range(0,nb_folds):
     patience = es_patience
     # Get the iterative dataloaders for test and training data
     train_loader, val_loader = load_dataset(DIR_TRAIN, split_size=split_size, batch_size=batch_size, num_workers=num_workers)
-    print('\n\n ################# Training fold%d #################'%(fold) )
+    print('\n\n ################# Training fold%d #################'%(fold+1) )
     print("--> Training size = %d , Validation size = %d"%(len(train_loader.dataset), len(val_loader.dataset) ))
     # define the torch model
     model, optimizer_, loss_criteria_, transfer_learning = define_config_optimizer_loss(transfer_learning, model_path, clf_model, lr, optimizer, loss_criteria)
@@ -226,17 +228,18 @@ def train_model(DIR_TRAIN, clf_model, model_path, nb_folds=5, num_epoch=100, lr=
                     break
             # display performace
             if epoch%10 == 0:
-              print("Fold: %d/%d, Epoch: %d/%d"%(fold, nb_folds, epoch,num_epoch))
+              print("Fold: %d/%d, Epoch: %d/%d"%(fold+1, nb_folds, epoch,num_epoch))
               print('Training set: Average loss: {:.6f}'.format(train_loss))
               test_loss = test(model, device, loss_criteria_, val_loader)
     # View Loss History
-    plt.figure(figsize=(15,15))
-    plt.plot(epoch_vect, training_loss)
-    plt.plot(epoch_vect, validation_loss)
-    plt.xlabel('epoch', fontsize = 15)
-    plt.ylabel('loss', fontsize = 15)
-    plt.legend(['training', 'validation'], loc='upper right')
-    plt.show()
+    if disp:
+      plt.figure(figsize=(15,15))
+      plt.plot(epoch_vect, training_loss)
+      plt.plot(epoch_vect, validation_loss)
+      plt.xlabel('epoch', fontsize = 15)
+      plt.ylabel('loss', fontsize = 15)
+      plt.legend(['training', 'validation'], loc='upper right')
+      plt.show()
   return model, classes, epoch_vect, training_loss, validation_loss
 
 def get_machine_ressources(model_path):
@@ -290,15 +293,13 @@ def test_model(model_path, DIR_TEST, classes):
 
   return truelabels, predictions, len(test_loader.dataset)
 
-def classification_performance(classes, truelabels, predictions,  TS_sz=0, TR_sz=0):
+def classification_performance(classes, truelabels, predictions,  TS_sz=0, TR_sz=0, disp=True):
   #Plot the confusion matrix
   from sklearn.metrics import confusion_matrix
   import seaborn as sns
 
   cm = confusion_matrix(truelabels, predictions)
-
   tick_marks = np.arange(len(classes))
-
   # Normalization
   cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
   cm=np.round(cm, 4)*100
@@ -308,18 +309,37 @@ def classification_performance(classes, truelabels, predictions,  TS_sz=0, TR_sz
       v = cm[0, 0]
       cm = np.array([[v, 0], [0, v]])
   df_cm = pd.DataFrame(cm, index = classes, columns = classes)
-  plt.figure(figsize = (7,7))
-  sns.heatmap(df_cm, annot=True, cmap=plt.cm.Blues, fmt='g')
-  plt.xlabel("Predicted class", fontsize = 10)
-  plt.ylabel("True class", fontsize = 10)
-  title_msg = ''
-  if not TR_sz==0:
-     title_msg = title_msg + " -  Training size = " + str(TR_sz ) 
-  if not TS_sz==0:
-     title_msg = title_msg + " -  Testing size = " + str(TS_sz ) 
+  if disp:
+    plt.figure(figsize = (7,7))
+    sns.heatmap(df_cm, annot=True, cmap=plt.cm.Blues, fmt='g')
+    plt.xlabel("Predicted class", fontsize = 10)
+    plt.ylabel("True class", fontsize = 10)
+    title_msg = ''
+    if not TR_sz==0:
+      title_msg = title_msg + " -  Training size = " + str(TR_sz ) 
+    if not TS_sz==0:
+      title_msg = title_msg + " -  Testing size = " + str(TS_sz ) 
 
-  plt.title(title_msg, fontsize = 10) 
-  plt.show()
+    plt.title(title_msg, fontsize = 10) 
+    plt.show()
+
+  # cumpute performance
+  from sklearn.metrics import precision_score, accuracy_score, recall_score, f1_score
+  # Sensitivity, hit rate, recall, or true positive rate
+  recall =  recall_score(truelabels, predictions, average='micro')  
+  # Precision or positive predictive value
+  Precision = precision_score(truelabels, predictions, average='micro')
+  # F1 score
+  F1_score =f1_score(truelabels, predictions, average='micro')
+  # average accuracy 
+  ACC = accuracy_score(truelabels, predictions)
+  if disp:
+    print('average accuracy = ', ACC)
+    print('recall = ', recall)
+    print('Precision = ', Precision)
+    print('F1_score = ', F1_score)
+  return  ACC, recall, Precision, F1_score
+ 
 
 def load_resize_convert_image(file_path, size):
   from PIL import Image
